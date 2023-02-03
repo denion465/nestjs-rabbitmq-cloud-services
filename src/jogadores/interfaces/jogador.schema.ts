@@ -9,7 +9,6 @@ export const JogadorSchema = new mongoose.Schema(
     },
     telefoneCelular: {
       type: String,
-      unique: true,
     },
     rankink: String,
     posicaoRanking: Number,
