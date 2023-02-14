@@ -3,16 +3,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JogadoresModule } from './jogadores/jogadores.module';
 import { CategoriasModule } from './categorias/categorias.module';
 import { DesafiosModule } from './desafios/desafios.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://@cluster0.ghdmkxq.mongodb.net/smartranking?retryWrites=true&w=majority',
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
-    ),
+    ConfigModule.forRoot(),
+    MongooseModule.forRoot(process.env.MONGO_DSN, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }),
     JogadoresModule,
     CategoriasModule,
     DesafiosModule,
