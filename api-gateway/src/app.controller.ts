@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
-  Logger,
+  Get,
+  Param,
   Post,
+  Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -11,7 +14,8 @@ import {
   ClientProxyFactory,
   Transport,
 } from '@nestjs/microservices';
-import { CriarCategoriaDto } from './dtos';
+import { Observable } from 'rxjs';
+import { AtualizarCategoriaDto, CriarCategoriaDto } from './dtos';
 
 @Controller('api/v1')
 export class AppController {
@@ -19,7 +23,6 @@ export class AppController {
   private readonly password = process.env.RABBITMQ_PASSWORD;
   private readonly host = process.env.RABBITMQ_HOST;
   private readonly queueName = process.env.RABBITMQ_QUEUE_NAME;
-  private logger = new Logger(AppController.name);
   private clientAdminBackend: ClientProxy;
 
   constructor() {
@@ -32,9 +35,26 @@ export class AppController {
     });
   }
 
+  @Get('categorias')
+  consultarCategorias(@Query('idCategoria') _id: string): Observable<any> {
+    return this.clientAdminBackend.send('consultar-categorias', _id ?? '');
+  }
+
   @Post('categorias')
   @UsePipes(ValidationPipe)
-  async criarCategoria(@Body() criarCategoriaDto: CriarCategoriaDto) {
-    return this.clientAdminBackend.emit('criar-categoria', criarCategoriaDto);
+  criarCategoria(@Body() criarCategoriaDto: CriarCategoriaDto) {
+    this.clientAdminBackend.emit('criar-categoria', criarCategoriaDto);
+  }
+
+  @Put('categorias/:_id')
+  @UsePipes(ValidationPipe)
+  atualizarCategorias(
+    @Body() atualizarCategoriaDto: AtualizarCategoriaDto,
+    @Param('_id') _id: string,
+  ) {
+    this.clientAdminBackend.emit('atualizar-categoria', {
+      id: _id,
+      categoria: atualizarCategoriaDto,
+    });
   }
 }
