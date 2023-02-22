@@ -10,7 +10,9 @@ export const JogadorSchema = new mongoose.Schema(
     telefoneCelular: {
       type: String,
     },
+    categoria: { type: mongoose.Schema.Types.ObjectId, ref: 'Categoria' },
     rankink: String,
+    urlFotoJogador: String,
     posicaoRanking: Number,
   },
   {

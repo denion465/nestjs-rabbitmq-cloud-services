@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CategoriaSchema } from './interfaces/categorias/categoria.schema';
-import { JogadorSchema } from './interfaces/jogadores/jogador.schema';
+import { CategoriasModule } from './categorias/categorias.module';
+import { JogadoresModule } from './jogadores/jogadores.module';
 
 @Module({
   imports: [
@@ -13,18 +11,8 @@ import { JogadorSchema } from './interfaces/jogadores/jogador.schema';
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }),
-    MongooseModule.forFeature([
-      {
-        name: 'Categoria',
-        schema: CategoriaSchema,
-      },
-      {
-        name: 'Jogador',
-        schema: JogadorSchema,
-      },
-    ]),
+    CategoriasModule,
+    JogadoresModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -1,21 +1,21 @@
 import { Controller, Logger } from '@nestjs/common';
 import {
-  Ctx,
-  EventPattern,
   MessagePattern,
   Payload,
+  Ctx,
   RmqContext,
+  EventPattern,
 } from '@nestjs/microservices';
-import { AppService } from './app.service';
-import { Categoria } from './interfaces/categorias/categoria.interface';
+import { CategoriasService } from './categorias.service';
+import { Categoria } from './interfaces/categoria.interface';
 
 const ackErrors: string[] = ['E11000'];
 
 @Controller()
-export class AppController {
-  private readonly logger = new Logger(AppController.name);
+export class CategoriasController {
+  private readonly logger = new Logger(CategoriasController.name);
 
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly categoriasService: CategoriasService) {}
 
   @MessagePattern('consultar-categorias')
   async consultarCategorias(
@@ -26,9 +26,9 @@ export class AppController {
     const originalMsg = context.getMessage();
     try {
       if (_id) {
-        return this.appService.consultarCategoriaPorId(_id);
+        return this.categoriasService.consultarCategoriaPorId(_id);
       } else {
-        return this.appService.consultarTodasCategorias();
+        return this.categoriasService.consultarTodasCategorias();
       }
     } finally {
       await channel.ack(originalMsg);
@@ -42,9 +42,9 @@ export class AppController {
   ) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
-    this.logger.log(`categoria: ${JSON.stringify(categoria, null, 2)}`);
+    this.logger.log(`categoria: ${JSON.stringify(categoria)}`);
     try {
-      await this.appService.criarCategoria(categoria);
+      await this.categoriasService.criarCategoria(categoria);
       await channel.ack(originalMsg);
     } catch (err) {
       this.logger.log(`error: ${JSON.stringify(err.message)}`);
@@ -60,11 +60,11 @@ export class AppController {
   async atualizarCategoria(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
-    this.logger.log(`data: ${JSON.stringify(data, null, 2)}`);
+    this.logger.log(`data: ${JSON.stringify(data)}`);
     try {
       const _id: string = data.id;
       const categoria: Categoria = data.categoria;
-      await this.appService.atualizarCategoria(_id, categoria);
+      await this.categoriasService.atualizarCategoria(_id, categoria);
       await channel.ack(originalMsg);
     } catch (err) {
       for (const ackError of ackErrors) {
